@@ -1,3 +1,24 @@
+set(SYCL_VERSION_FILE
+    "/opt/intel/dpcpp_compiler-20230719/include/sycl/version.hpp"
+)
+
+if(NOT EXISTS "${SYCL_VERSION_FILE}")
+    message(FATAL_ERROR "SYCL version.hpp not found: ${SYCL_VERSION_FILE}")
+endif()
+
+file(READ "${SYCL_VERSION_FILE}" version_contents)
+
+string(REGEX MATCHALL "__SYCL_COMPILER_VERSION +[0-9]+"
+       VERSION_LINE "${version_contents}")
+
+list(LENGTH VERSION_LINE ver_line_num)
+
+if(ver_line_num EQUAL 1)
+    string(REGEX MATCHALL "[0-9]+" SYCL_COMPILER_VERSION "${VERSION_LINE}")
+endif()
+
+#find_package(IntelSYCL REQUIRED)
+
 #===============================================================================
 # Copyright 2019 Intel Corporation
 #
@@ -24,13 +45,25 @@ set(IntelSYCL_cmake_included true)
 
 include(FindPackageHandleStandardArgs)
 
-find_package(IntelSYCL REQUIRED)
-if(NOT IntelSYCL_FOUND)
-  message(FATAL_ERROR "Cannot find IntelSYCL compiler!")
-endif()
+#find_package(IntelSYCL REQUIRED)
+#if(NOT IntelSYCL_FOUND)
+#  message(FATAL_ERROR "Cannot find IntelSYCL compiler!")
+#endif()
 
 # Try to find Intel SYCL version.hpp header
-find_file(INTEL_SYCL_VERSION
+#find_file(INTEL_SYCL_VERSION
+#find_file(INTEL_SYCL_VERSION
+#    NAMES version.hpp
+#    PATHS
+#        ${SYCL_INCLUDE_DIR}
+#    PATH_SUFFIXES
+#        sycl
+#        sycl/CL
+#        sycl/CL/sycl
+#    NO_DEFAULT_PATH)
+
+
+find_file(SYCL_VERSION_FILE
     NAMES version.hpp
     PATHS
         ${SYCL_INCLUDE_DIR}
@@ -40,17 +73,26 @@ find_file(INTEL_SYCL_VERSION
         sycl/CL/sycl
     NO_DEFAULT_PATH)
 
-if(NOT INTEL_SYCL_VERSION)
-  message(FATAL_ERROR "Can NOT find SYCL version file!")
-endif()
-
-set(SYCL_COMPILER_VERSION)
-file(READ ${INTEL_SYCL_VERSION} version_contents)
+file(READ ${SYCL_VERSION_FILE} version_contents)
 string(REGEX MATCHALL "__SYCL_COMPILER_VERSION +[0-9]+" VERSION_LINE "${version_contents}")
 list(LENGTH VERSION_LINE ver_line_num)
 if (${ver_line_num} EQUAL 1)
   string(REGEX MATCHALL "[0-9]+" SYCL_COMPILER_VERSION "${VERSION_LINE}")
 endif()
+
+#if(NOT INTEL_SYCL_VERSION)
+#if(NOT SYCL_COMPILER_VERSION)
+#  message(FATAL_ERROR "Can NOT find SYCL version file!")
+#endif()
+
+#set(SYCL_COMPILER_VERSION)
+##file(READ ${INTEL_SYCL_VERSION} version_contents)
+#file(READ ${__SYCL_COMPILER_VERSION} version_contents)
+#string(REGEX MATCHALL "__SYCL_COMPILER_VERSION +[0-9]+" VERSION_LINE "${version_contents}")
+#list(LENGTH VERSION_LINE ver_line_num)
+#if (${ver_line_num} EQUAL 1)
+#  string(REGEX MATCHALL "[0-9]+" SYCL_COMPILER_VERSION "${VERSION_LINE}")
+#endif()
 
 set(IGC_OCLOC_VERSION)
 find_program(OCLOC_EXEC ocloc)

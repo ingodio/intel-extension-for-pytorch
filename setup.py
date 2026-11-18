@@ -427,12 +427,12 @@ def get_xpu_project_build_dir():
 
 
 def get_xpu_compliers():
-    if shutil.which("icx") is None or shutil.which("icpx") is None:
+    if shutil.which("clang") is None or shutil.which("clang++") is None:
         raise RuntimeError("Failed to find compiler path from OS PATH")
     if IS_WINDOWS:
         return "icx", "icx"
     else:
-        return "icx", "icpx"
+        return "clang", "clang++"
 
 
 def get_ipex_python_dir():
